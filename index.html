@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>VINICIUS-FILEFLIX</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>VINICIUS-FILEFLIX</h1>
+  </header>
+
+  <!-- LAYOUT: MENU LATERAL (ESQ) + VÍDEO (DIR) -->
+  <div class="layout">
+    <!-- LATERAL ESQUERDA -->
+    <aside class="sidebar compacto">
+      <!-- Seletor de tema -->
+      <section style="padding:12px 0;">
+        <label for="tema" style="color:#BDC3C7; margin-right:8px;">ESCOLHA O TEMA:</label>
+        <select id="tema">
+          <option value="MUSICA">MUSICA</option>
+          <option value="FPS">FPS</option>
+          <option value="AC DC">AC DC</option>
+          <option value="OZZY">OZZY</option>
+        </select>
+      </section>
+
+      <!-- Menu dinâmico gerado via JS -->
+      <nav class="nav-vertical" aria-label="Lista de vídeos do tema">
+        <ul id="menu-temas"><!-- Itens gerados via JS --></ul>
+      </nav>
+
+      <!-- Menu fixo adicional -->
+      <br>
+      <h1 style="font-size:15px; color:#f0f0f0; margin:16px 0; text-align:left;">
+  VÍDEOS EXTERNOS DO YOUTUBE👇
+</h1>
+      <nav class="nav-vertical" aria-label="Vídeos fixos">
+        <ul>
+          <li><a href="https://youtu.be/N2i3ju10p1Y?si=eGe7y1XvW5ont8Oe" target="_blank">SIN DEVIL TRIGGER </a></li>
+          <li><a href="https://youtu.be/Z-71-i1akB0?si=rKrskD0Uvfs5CJkZ" target="_blank">MEATHOOK </a></li>
+          <li><a href="https://youtu.be/v2AC41dglnM?si=u4fY6I2PU94KyFE8" target="_blank">THUNDERSTRUCK </a></li>
+          <li><a href="https://youtu.be/xRQnJyP77tY?si=iJropMu3sqFqOd7V" target="_blank">SHOOT TO THRILL</a></li>
+          <li><a href="https://youtu.be/pvy9km7g6fw?si=CghnOWobizl_o2AD" target="_blank">BURY THE LIGHT </a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- PLAYER À DIREITA -->
+    <main class="player">
+      <div class="video-box">
+        <iframe
+          class="video-frame"
+          width="540"
+          height="310"
+          src="https://www.youtube.com/embed/kNJPalON82E"
+          title="Player de vídeo"
+          frameborder="0"
+          allowfullscreen
+        ></iframe>
+
+        <div class="info">
+          <h3>BURY THE LIGHTi</h3>
+          <p>CASEY EDWARDS</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    // Mapa de temas → lista de vídeos
+    const TEMAS = {
+      MUSICA: [
+        { titulo: "BURY THE LIGHT", 
+         autor: "CASEY EDWARDS", 
+         url: "https://www.youtube.com/watch?v=pvy9km7g6fw&list=RDN2i3ju10p1Y&index=9" 
+        },
+        { titulo: "MEATHOOK", 
+         autor: "MICK GORDON", 
+         url: "https://youtu.be/Z-71-i1akB0?si=rKrskD0Uvfs5CJkZ" 
+        },
+        { titulo: "THUNDERSTRUCK", 
+         autor: "AC DC", 
+         url: "https://youtu.be/v2AC41dglnM?si=u4fY6I2PU94KyFE8" 
+        },
+      ],
+      FPS: [
+        { titulo: "DOOM THE DARK AGES", 
+         autor: "BETHESDA", 
+         url: "https://youtu.be/jts-AJHAhLQ?si=bqKccs_Kwlh2ALGV" 
+        },
+        { titulo: "DOOM", 
+         autor: "BETHESDA", 
+         url: "https://youtu.be/I-RAk7r08IA?si=4HqgMLqUULSUs6_e" 
+        },
+      ],
+      INFANTIL: [
+        { titulo: "DOOM ETERNAL", 
+         autor: "BETHESDA", 
+         url: "" 
+       
+        },
+        { titulo: "PEDRO, THIAGO, JOÃO NO BARQUINHO", 
+         autor: "3 PALAVRINHAS", 
+         url: "https://youtu.be/Tdwy3BZe61s?si=As38T49IC695wKE0" 
+        },
+      ],
+      AULAS: [
+        { titulo: "INTRODUÇÃO A JAVASCRIPT", 
+         autor: "TIGER CODES", 
+         url: "https://youtu.be/WRlfwBof66s?si=0o80ULtCNqjj-lU2" 
+        },
+        { titulo: "HTML E CSS BÁSICO EM 5 MINUTOS", 
+         autor: "TIGER CODES", 
+         url: "https://www.youtube.com/watch?v=5Hn58p-hYC0" 
+        },
+      ],
+    };
+
+    // Seletores
+    const selectTema = document.getElementById("tema");
+    const menuUl     = document.getElementById("menu-temas");
+    const iframeEl   = document.querySelector(".video-box iframe");
+    const infoTitulo = document.querySelector(".info h3");
+    const infoAutor  = document.querySelector(".info p");
+
+    // Converte URL normal do YouTube para /embed
+    function toEmbed(url) {
+      try {
+        const u = new URL(url);
+        const id = u.searchParams.get("v");
+        if (id) return `https://www.youtube.com/embed/${id}`;
+        if (u.hostname.includes("youtu.be")) return `https://www.youtube.com/embed/${u.pathname.slice(1)}`;
+        return url;
+      } catch {
+        return url;
+      }
+    }
+
+    // Renderiza o menu com base no tema
+    function renderMenu(tema) {
+      const lista = TEMAS[tema] || [];
+      menuUl.innerHTML = "";
+
+      lista.forEach((video) => {
+        const li = document.createElement("li");
+        const a  = document.createElement("a");
+        a.href = "#";
+        a.textContent = video.titulo.toUpperCase();
+        a.setAttribute("role", "button");
+        a.addEventListener("click", (e) => {
+          e.preventDefault();
+          trocarVideo(video);
+        });
+        li.appendChild(a);
+        menuUl.appendChild(li);
+      });
+
+      if (lista.length) trocarVideo(lista[0]);
+    }
+
+    // Troca o vídeo e informações
+    function trocarVideo(video) {
+      iframeEl.src = toEmbed(video.url);
+      infoTitulo.textContent = video.titulo.toUpperCase();
+      infoAutor.textContent  = `${video.autor.toUpperCase()}.`;
+    }
+
+    // Inicialização
+    renderMenu(selectTema.value);
+    selectTema.addEventListener("change", () => renderMenu(selectTema.value));
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
